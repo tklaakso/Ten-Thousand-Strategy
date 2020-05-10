@@ -112,7 +112,7 @@ for s in space:
 
 print('Generating failure array...')
 
-max_score = 100000
+max_score = 20000
 
 failure = [p([x for x in space[i] if len(rolls[tuple(x)][0]) == 0], space[i]) for i in range(6)]
 
@@ -120,15 +120,22 @@ totals = [0, 0, 0, 0]
 
 nsi = lambda s, d: Ens[d - 1][int(min(max_score, s) / 50)]
 
-si = lambda s, d: (1 - 2 * failure[d - 1]) * s if s > max_score else Est[d - 1][int(s / 50)]
+sio = lambda s, d: (1 - 2 * failure[d - 1]) * s if s > max_score else Esto[d - 1][int(s / 50)]
 
-si_adjusted = lambda s, d: ((1 - 2 * failure[d - 1]) * s if s > max_score else Est[d - 1][int(s / 50)]) + s * (1 - fi(d))
+siu = lambda s, d: (1 - 2 * failure[d - 1]) * s if s > max_score else Estu[d - 1][int(s / 50)]
+
+sio_adjusted = lambda s, d: ((1 - 2 * failure[d - 1]) * s if s > max_score else Esto[d - 1][int(s / 50)]) + (s * (1 - fi(d)) if s >= steals_one[d - 1] else max(0, expectation))
+
+siu_adjusted = lambda s, d: ((1 - 2 * failure[d - 1]) * s if s > max_score else Estu[d - 1][int(s / 50)]) + (s * (1 - fi(d)) if s >= steals_unlimited[d - 1] else max(0, expectation))
 
 def nss(s, d, v):
 	Ens[d - 1][int(min(max_score, s) / 50)] = v
 
-def ss(s, d, v):
-	Est[d - 1][int(min(max_score, s) / 50)] = v
+def sso(s, d, v):
+	Esto[d - 1][int(min(max_score, s) / 50)] = v
+
+def ssu(s, d, v):
+	Estu[d - 1][int(min(max_score, s) / 50)] = v
 
 fi = lambda x: failure[x - 1]
 
@@ -159,7 +166,10 @@ def E(s, d):
 		expectation += (1 / len(space[d - 1])) * maximal
 	return max(0, expectation)
 
-def Es(s, d):
+steals_one = [400, 400, 400, 250, 50, 0]
+steals_unlimited = [400, 400, 400, 750, 250, 0]
+
+def Eso(s, d):
 	expectation = 0
 	for x in space[d - 1]:
 		maximal = float('-inf')
@@ -174,10 +184,30 @@ def Es(s, d):
 					dice = d - sum([item[2] - item[1] for item in subs if scores[item[0]] > 0])
 					if dice == 0:
 						dice = 6
-					score += si(s + score, dice)
+					score += sio(s + score, dice)
 					maximal = max(maximal, score)
 		expectation += (1 / len(space[d - 1])) * maximal
-	return max(-s * (1 - fi(d)), expectation)
+	return max(-s * (1 - fi(d)), expectation) if s >= steals_one[d - 1] else max(0, expectation)
+
+def Esu(s, d):
+	expectation = 0
+	for x in space[d - 1]:
+		maximal = float('-inf')
+		interp = rolls[tuple(x)]
+		if len(interp[0]) == 0:
+			maximal = -s
+		else:
+			for inter in interp:
+				subset = subsets(list(inter))
+				for subs in subset:
+					score = sum([scores[item[0]] for item in subs])
+					dice = d - sum([item[2] - item[1] for item in subs if scores[item[0]] > 0])
+					if dice == 0:
+						dice = 6
+					score += siu(s + score, dice)
+					maximal = max(maximal, score)
+		expectation += (1 / len(space[d - 1])) * maximal
+	return max(-s * (1 - fi(d)), expectation) if s >= steals_unlimited[d - 1] else max(0, expectation)
 
 def optimal_choice(s, d, steal):
 	maximal = float('-inf')
@@ -196,15 +226,19 @@ def optimal_choice(s, d, steal):
 					dice = 6
 				if steal == 0:
 					score += nsi(s + score, dice)
-				else:
-					score += si(s + score, dice)
+				elif steal == 1:
+					score += sio(s + score, dice)
+				elif steal == 2:
+					score += siu(s + score, dice)
 				if score > maximal:
 					maximal = score
 					maximal_choice = subs
 					if steal == 0:
 						maximal_index = nsi(s + sum([scores[item[0]] for item in subs]), dice)
-					else:
-						maximal_index = si_adjusted(s + sum([scores[item[0]] for item in subs]), dice)
+					elif steal == 1:
+						maximal_index = sio_adjusted(s + sum([scores[item[0]] for item in subs]), dice)
+					elif steal == 2:
+						maximal_index = siu_adjusted(s + sum([scores[item[0]] for item in subs]), dice)
 	if maximal_index == 0:
 		return ('hold', maximal_choice)
 	return ('roll', maximal_choice)
@@ -224,20 +258,55 @@ else:
 		content = '\n'.join([' '.join([str(x) for x in row]) for row in Ens])
 		f.write(content)
 
-if os.path.isfile('Est.txt'):
-	with open('Est.txt', 'r') as f:
+if os.path.isfile('Esto.txt'):
+	with open('Esto.txt', 'r') as f:
 		lines = f.read().split('\n')
-	Est = [[float(x) for x in line.split(' ')] for line in lines]
+	Esto = [[float(x) for x in line.split(' ')] for line in lines]
 else:
-	print('Calculating steal expected values...')
-	Est = [([0] * int(max_score / 50)) + [(1 - 2 * failure[i]) * max_score] for i in range(6)]
+	print('Calculating one steal expected values...')
+	Esto = [([0] * int(max_score / 50)) + [(1 - 2 * failure[i]) * max_score] for i in range(6)]
 	for score in list(reversed(range(int(max_score / 50)))):
 		for dice in range(1, 7):
-			ss(score * 50, dice, Es(score * 50, dice))
-			print('Done ' + str(score) + ', ' + str(dice) + ': ' + str(si(score * 50, dice)))
-	with open('Est.txt', 'w') as f:
-		content = '\n'.join([' '.join([str(x) for x in row]) for row in Est])
+			sso(score * 50, dice, Eso(score * 50, dice))
+			print('Done ' + str(score) + ', ' + str(dice) + ': ' + str(sio(score * 50, dice)))
+	with open('Esto.txt', 'w') as f:
+		content = '\n'.join([' '.join([str(x) for x in row]) for row in Esto])
 		f.write(content)
+
+if os.path.isfile('Estu.txt'):
+	with open('Estu.txt', 'r') as f:
+		lines = f.read().split('\n')
+	Estu = [[float(x) for x in line.split(' ')] for line in lines]
+else:
+	print('Calculating unlimited steal expected values...')
+	Estu = [([0] * int(max_score / 50)) + [(1 - 2 * failure[i]) * max_score] for i in range(6)]
+	for score in list(reversed(range(int(max_score / 50)))):
+		for dice in range(1, 7):
+			ssu(score * 50, dice, Esu(score * 50, dice))
+			print('Done ' + str(score) + ', ' + str(dice) + ': ' + str(siu(score * 50, dice)))
+	with open('Estu.txt', 'w') as f:
+		content = '\n'.join([' '.join([str(x) for x in row]) for row in Estu])
+		f.write(content)
+
+print('Calculating first steal scores...')
+
+should_steal = lambda s, d, unlimited: (s + siu(s, d) if unlimited else s + nsi(s, d)) >= siu(0, 6)
+first_steals_one = []
+for i in range(1, 7):
+	score = 0
+	while True:
+		if should_steal(score, i, False):
+			first_steals_one.append(score)
+			break
+		score += 50
+first_steals_unlimited = []
+for i in range(1, 7):
+	score = 0
+	while True:
+		if should_steal(score, i, True):
+			first_steals_unlimited.append(score)
+			break
+		score += 50
 
 print('Done!')
 
@@ -260,8 +329,8 @@ def play():
 			d = int(input('Enter number of stealable dice: '))
 			val = sc + nsi(sc, d)
 			if steal_val() == 2:
-				val = sc + si(sc, d)
-			if val > si(0, 6):
+				val = sc + siu(sc, d)
+			if val >= siu(0, 6):
 				score += sc
 				stolen = True
 				stealing_turn = True
