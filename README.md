@@ -1,1 +1,1 @@
-"# Ten-Thousand-Strategy" 
+## Ten Thousand Strategy
