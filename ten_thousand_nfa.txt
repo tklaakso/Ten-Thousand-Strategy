@@ -1,0 +1,185 @@
+start
+one
+five
+two
+three
+four
+five
+six
+k2d1
+k3d1
+k4d1
+k5d1
+k6d1
+k2d2
+k3d2
+k4d2
+k5d2
+k6d2
+k2d3
+k3d3
+k4d3
+k5d3
+k6d3
+k2d4
+k3d4
+k4d4
+k5d4
+k6d4
+k2d5
+k3d5
+k4d5
+k5d5
+k6d5
+k2d6
+k3d6
+k4d6
+k5d6
+k6d6
+run2
+run3
+run4
+run5
+run6
+run2s
+run3s
+run4s
+run5s
+split1
+split2
+split3
+split2d1
+split2d2
+split2d3
+split2d4
+split2d5
+split2d6
+split3d1
+split3d2
+split3d3
+split3d4
+split3d5
+split3d6
+-----
+1
+2
+3
+4
+5
+6
+-----
+start 1 one
+start 5 five
+start 2 two
+start 3 three
+start 4 four
+start 6 six
+one 1 k2d1
+five 5 k2d5
+two 2 k2d2
+three 3 k2d3
+four 4 k2d4
+six 6 k2d6
+k2d1 1 k3d1
+k3d1 1 k4d1
+k4d1 1 k5d1
+k5d1 1 k6d1
+k2d2 2 k3d2
+k3d2 2 k4d2
+k4d2 2 k5d2
+k5d2 2 k6d2
+k2d3 3 k3d3
+k3d3 3 k4d3
+k4d3 3 k5d3
+k5d3 3 k6d3
+k2d4 4 k3d4
+k3d4 4 k4d4
+k4d4 4 k5d4
+k5d4 4 k6d4
+k2d5 5 k3d5
+k3d5 5 k4d5
+k4d5 5 k5d5
+k5d5 5 k6d5
+k2d6 6 k3d6
+k3d6 6 k4d6
+k4d6 6 k5d5
+k5d6 6 k6d6
+one 2 run2
+run2 3 run3
+run3 4 run4
+run4 5 run5
+run5 6 run6
+run2 2 run2
+run3 3 run3
+run4 4 run4
+run5 5 run5
+two 3 run2s
+run2s 4 run3s
+run3s 5 run4s
+run4s 6 run5s
+run2s 3 run2s
+run3s 4 run3s
+run4s 5 run4s
+one 1 split1
+two 2 split1
+three 3 split1
+four 4 split1
+five 5 split1
+six 6 split1
+split1 1 split2d1
+split1 2 split2d2
+split1 3 split2d3
+split1 4 split2d4
+split1 5 split2d5
+split1 6 split2d6
+split2d1 1 split2
+split2d2 2 split2
+split2d3 3 split2
+split2d4 4 split2
+split2d5 5 split2
+split2d6 6 split2
+split2 1 split3d1
+split2 2 split3d2
+split2 3 split3d3
+split2 4 split3d4
+split2 5 split3d5
+split2 6 split3d6
+split3d1 1 split3
+split3d2 2 split3
+split3d3 3 split3
+split3d4 4 split3
+split3d5 5 split3
+split3d6 6 split3
+-----
+start
+-----
+one
+five
+k3d1
+k3d2
+k3d3
+k3d4
+k3d5
+k3d6
+k4d1
+k4d2
+k4d3
+k4d4
+k4d5
+k4d6
+k5d1
+k5d2
+k5d3
+k5d4
+k5d5
+k5d6
+k6d1
+k6d2
+k6d3
+k6d4
+k6d5
+k6d6
+run5
+run6
+run5s
+split3
